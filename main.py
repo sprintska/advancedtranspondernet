@@ -10,6 +10,7 @@ def hello_world():
     d = jp.Div(text='Hello world!')
     d.on('click', my_click)
     wp.add(d)
+    print(1)
     return wp
 
 jp.justpy(hello_world, host="172.31.33.227", port="80")
