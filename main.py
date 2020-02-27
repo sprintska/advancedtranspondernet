@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import justpy as jp
+import platform
+import socket
+
+PUBLIC_IP = socket.gethostbyname(socket.getfqdn())
 
 def my_click(self, msg):
     self.text = 'I was clicked!'
@@ -13,4 +17,4 @@ def hello_world():
     print(1)
     return wp
 
-jp.justpy(hello_world, host="172.31.33.227", port="80")
+jp.justpy(hello_world, host=PUBLIC_IP, port="80")
