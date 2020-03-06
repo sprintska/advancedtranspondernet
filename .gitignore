@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+atn.key
+atn.csr
