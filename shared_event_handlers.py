@@ -25,14 +25,11 @@ def event_demo():
     wp = jp.WebPage()
     button_div = jp.Div(classes="flex m-4 flex-wrap", a=wp)
     button_classes = "w-auto mr-2 mb-2 transition-colors duration-300 ease-out bg-gray-700 hover:bg-black text-white font-bold py-2 px-4 rounded-full "
-    message = jp.Div(classes="text-lg border m-2 p-2 overflow-auto h-64", a=wp)
-    message.add(jp.P(text="No button clicked yet."))
     button_list = []
     for i in range(1, number_of_buttons + 1):
         b = jp.Button(
             text=f"Button {i}", a=button_div, classes=button_classes, click=button_click
         )
-        b.message = message
         b.num_clicked = 0
         button_list.append(b)
     wp.button_list = button_list
