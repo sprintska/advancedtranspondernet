@@ -6,7 +6,11 @@ import socket
 import asyncio
 
 PUBLIC_IP = socket.gethostbyname(socket.getfqdn())
+
 button_classes = "w-auto mr-2 mb-2 transition-colors duration-300 ease-out bg-gray-700 hover:bg-black text-white font-bold py-2 px-4 rounded-full "
+input_classes = "m-2 bg-blue-200 border-2 border-gray-200 rounded w-64 py-2 px-4 text-gray-700 focus:outline-none focus:bg-white focus:border-purple-500"
+p_classes = "m-2 p-2 h-32 text-xl border-2"
+
 
 def html_comps():
     wp = jp.WebPage()
@@ -141,32 +145,42 @@ def list_demo():
 
 def show_demo():
     wp = jp.WebPage()
-    b = jp.Button(text = 'Click to toggle show', a=wp, classes=button_classes)
-    d = jp.Div(text='Toggled by show', classes='m-2 p-2 text-2x1 border w-48', a=wp)
+    b = jp.Button(text="Click to toggle show", a=wp, classes=button_classes)
+    d = jp.Div(text="Toggled by show", classes="m-2 p-2 text-2x1 border w-48", a=wp)
     b.d = d
-    jp.Div(text='Will always show', classes = 'm-2', a=wp)
+    jp.Div(text="Will always show", classes="m-2", a=wp)
 
     def toggle_show(self, msg):
         self.d.show = not self.d.show
 
-    b.on('click', toggle_show)
+    b.on("click", toggle_show)
 
-    b = jp.Button(text='Click to toggle visibility', a=wp, classes=button_classes)
-    d=jp.Div(text='Toggled by visible', classes='m-2 p-2 text-2x1 border w-48', a = wp)
-    d.visibility_state = 'visible'
+    b = jp.Button(text="Click to toggle visibility", a=wp, classes=button_classes)
+    d = jp.Div(text="Toggled by visible", classes="m-2 p-2 text-2x1 border w-48", a=wp)
+    d.visibility_state = "visible"
     b.d = d
-    jp.Div(text='Will always show', classes = 'm-2', a=wp)
+    jp.Div(text="Will always show", classes="m-2", a=wp)
 
     def toggle_visible(self, msg):
-        if self.d.visibility_state == 'visible':
-            self.d.set_class('invisible')
-            self.d.visibility_state = 'invisible'
+        if self.d.visibility_state == "visible":
+            self.d.set_class("invisible")
+            self.d.visibility_state = "invisible"
         else:
-            self.d.set_class('visible')
-            self.d.visibility_state = 'visible'
+            self.d.set_class("visible")
+            self.d.visibility_state = "visible"
 
-    b.on('click', toggle_visible)
+    b.on("click", toggle_visible)
     return wp
 
 
-jp.justpy(show_demo, host=PUBLIC_IP)
+async def my_input(self, msg):
+    self.div.text = self.value
+
+
+async def input_demo(request):
+    wp = jp.WebPage()
+    in1 = jp.Input(a=wp, classes=input_classes, placeholder="Please type here")
+    return wp
+
+
+jp.justpy(input_demo, host=PUBLIC_IP)
