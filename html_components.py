@@ -180,7 +180,195 @@ async def my_input(self, msg):
 async def input_demo(request):
     wp = jp.WebPage()
     in1 = jp.Input(a=wp, classes=input_classes, placeholder="Please type here")
+    in1.div = jp.Div(text="What you type will show up here", classes=p_classes, a=wp)
+    in1.on("input", my_input)
     return wp
 
 
-jp.justpy(input_demo, host=PUBLIC_IP)
+def color_demo(request):
+    wp = jp.WebPage()
+    in1 = jp.Input(
+        type="color",
+        a=wp,
+        classes="m-2 p-2",
+        style="width: 100px; height: 100px",
+        input=color_change,
+        debounce=30,
+    )
+    in1.d = jp.Div(
+        text="Click box above to change color of this text",
+        a=wp,
+        classes="border m-2 p-2 text-2x1 font-bold",
+    )
+    return wp
+
+
+def color_change(self, msg):
+    self.d.style = f"color: {self.value}"
+    self.d.text = f"The color of this text is: {self.value}"
+
+
+def radio_changed(self, msg):
+    self.result_div.text = ""
+    d = jp.Div(a=self.result_div, classes="m-2 p-2 border")
+    for btn in self.btn_list:
+        if btn.checked:
+            jp.Span(text=f"{btn.value} is checked", a=d, classes="text-green-500 mr-6")
+        else:
+            jp.Span(
+                text=f"{btn.value} is NOT checked", a=d, classes="text-red-500 mr-6"
+            )
+
+
+def radio_test():
+    wp = jp.WebPage()
+    genders = ["male", "female", "other"]
+    ages = [(0, 30), (31, 60), (61, 100)]
+
+    outer_div = jp.Div(classes="border m-2 p-2 w-64", a=wp)
+    # Create div to show radio button selection but don't add yet to page. It will be added at the end
+    # It is created here so that it could be assigned to the radio button attribute result_div
+    result_div = jp.Div(
+        text="Click radio buttons to see results here", classes="m-2 p-2 text-xl"
+    )
+
+    jp.P(a=outer_div, text="Please select your gender:")
+    gender_list = []
+    for gender in genders:
+        label = jp.Label(classes="inline-block mg-1 p-1", a=outer_div)
+        radio_btn = jp.Input(
+            type="radio",
+            name="gender",
+            value=gender,
+            a=label,
+            btn_list=gender_list,
+            result_div=result_div,
+            change=radio_changed,
+        )
+        gender_list.append(radio_btn)
+        jp.Span(classes="ml-1", a=label, text=gender.capitalize())
+
+    jp.Div(a=outer_div, classes="m-2")  # Add spacing and line break
+
+    jp.P(a=outer_div, text="Please select your age:")
+    age_list = []
+    for age in ages:
+        label = jp.Label(classes="inline-block mb-1 p-1", a=outer_div)
+        radio_btn = jp.Input(
+            type="radio",
+            name="age",
+            value=age[0],
+            a=label,
+            btn_list=age_list,
+            result_div=result_div,
+            change=radio_changed,
+        )
+        age_list.append(radio_btn)
+        jp.Span(classes="ml-1", a=label, text=f"{age[0]} - {age[1]}")
+        jp.Br(a=outer_div)
+
+    wp.add(result_div)
+    return wp
+
+
+def check_test():
+    wp = jp.WebPage(data={'checked': True})
+    label = jp.Label(a=wp, classes='m-2 p-2 inline-block')
+    c = jp.Input(type='checkbox', classes='m-2 p-2 form-checkbox', a=label, model=[wp, 'checked'])
+    caption = jp.Span(text='Click to get stuff', a=label)
+
+    in1 = jp.Input(model=[wp, 'checked'], a=wp, classes='border block m-2 p-2')
+    return wp
+
+
+def my_blur(self, msg):
+    self.set_focus = False
+
+def key_down(self, msg):
+    # print(msg.key_data)
+    print(msg.key_data.key)
+    key = msg.key_data.key
+    if key == "Escape":
+        self.value = ''
+        return
+    if key == "Enter":
+        self.set_focus = False
+        try:
+            next_to_focus = self.input_list[self.num + 1]
+        except:
+            next_to_focus = self.input_list[0]
+        next_to_focus.set_focus = True
+        return
+    return True # Don't update the page
+
+def focus_test():
+    wp = jp.WebPage()
+    d = jp.Div(classes = 'flex flex-col m-2', a=wp, style='width: 600 px')
+    input_list = []
+    number_of_fields = 5
+    for i in range(1, number_of_fields + 1):
+        label = jp.Label(a=d, classes = 'm-2 p-2')
+        jp.Span(text=f'Field {i}', a=label)
+        in1 = jp.Input(classes = jp.Styles.input_classes, placeholder=f'{i} Type here', a=label, keydown=key_down, spellcheck='false')
+        in1.on('blur', my_blur)
+        in1.input_list = input_list
+        in1.num = i-1
+        input_list.append(in1)
+    print(input_list)
+    return wp
+
+
+def reset_all(self, msg):
+    msg.page.data['text'] = ''
+
+
+async def model_demo(request):
+    wp = jp.WebPage(data={'text':'Initial text'})
+    button_classes = 'w-32 m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+    b = jp.Button(text='Reset', click=reset_all, a=wp, classes=button_classes)
+    jp.Hr(a=wp)
+    input_classes = "m-2 bg-gray-200 appearance-none border-2 border-gray-200 rounded xtw-64 py-2 px-4 text-gray-700 focus:outline-none focus:bg-white focus:border-purple-500"
+    for _ in range(5):
+        jp.Input(a=wp, classes=input_classes, placeholder='Please type here', model=[wp, 'text'])
+    for _ in range(3):
+        jp.Div(model=[wp, 'text'], classes='m-2 p-2 h-32 text-xl border-2 overflow-auto', a=wp)
+    return wp
+
+
+my_html = """
+    <div>
+    <p class = "m-2 p-2 text-red-500 text-xl">Paragraph 1</p>
+    <p class = "m-2 p-2 text-blue-500 text-xl">Paragraph 2</p>
+    <p class = "m-2 p-2 text-green-500 text-xl">Paragraph 3</p>
+    """
+
+def inner_demo():
+    wp = jp.WebPage()
+    d = jp.Div(a=wp, classes = 'm-4 p-4 text-3x1')
+    d.inner_html = '<pre>Hello there. \n How are you?</pre>'
+    jp.Div(a=wp, inner_html=my_html)
+    for color in ['red', 'green', 'blue', 'pink', 'yellow', 'teal', 'purple']:
+        jp.Div(a=wp, inner_html=f'<p class="ml-2 text-{color}-500 text-3x1">{color}</p>')
+    return wp
+
+def html_demo():
+    wp = jp.WebPage()
+    jp.Div(text='This will not be shown', a=wp)
+    wp.html = '<p class="text-2x1 m-2 m-1 text-red-500">Hello world!</p>'
+    jp.Div(text='This will not be shown', a=wp)
+    return wp
+
+async def parse_demo(request):
+    wp = jp.WebPage()
+    c = jp.parse_html("""
+    <div>
+    <p class="m-2 p-2 text-red-500 text-xl">Paragraph 1</p>
+    <p class="m-2 p-2 text-blue-500 text-xl">Paragraph 2</p>
+    <p class="m-2 p-2 text-green-500 text-xl">Paragraph 3</p>
+    </div>
+    """, a=wp)
+    print(c)
+    print(c.components)
+    return wp
+
+jp.justpy(parse_demo, host=PUBLIC_IP)
